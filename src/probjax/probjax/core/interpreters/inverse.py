@@ -2,15 +2,13 @@ import jax
 
 from jax import lax
 
-from jax.core import Primitive, Jaxpr, JaxprEqn
+from probjax._jax_compat import Primitive, Jaxpr, JaxprEqn, pjit_p, custom_jvp_call_p
 import functools
 
 from typing import Any, Callable, Optional
 import numpy as np
 import jax.numpy as jnp
 from jax._src.util import safe_map
-from jax.custom_derivatives import custom_jvp_call_p
-from jax.experimental.pjit import pjit_p
 
 from probjax.core.jaxpr_propagation.utils import ProcessingRule
 from probjax.core.jaxpr_propagation.propagate import propagate
@@ -428,7 +426,7 @@ class InverseProcessingRule(ProcessingRule):
             )
         elif (
             not all(is_known_invars)
-            and eqn.primitive is jax.experimental.pjit.pjit_p
+            and eqn.primitive is pjit_p
             #      or eqn.primitive is custom_jvp_call_p
         ):
             return None
@@ -543,7 +541,7 @@ class InverseAndLogAbsDetProcessingRule(InverseProcessingRule):
         ):
             return self._default_custom_rule_apply(eqn, known_invars, known_outvars)
         elif (
-            not all(is_known_invars) and eqn.primitive is jax.experimental.pjit.pjit_p
+            not all(is_known_invars) and eqn.primitive is pjit_p
         ):  # or eqn.primitive is custom_jvp_call_p:
             return self._default_pjit(eqn, known_invars, known_outvars)
 

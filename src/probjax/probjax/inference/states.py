@@ -6,7 +6,7 @@ import jax
 from jax.tree_util import register_pytree_node_class
 import jax.numpy as jnp
 import jax.random as jrandom
-from jax.random import KeyArray
+from probjax._jax_compat import KeyArray
 
 from abc import abstractmethod
 from functools import partial

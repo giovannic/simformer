@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+from probjax._jax_compat import tree_map
 
 import optax
 
@@ -86,8 +87,8 @@ def run_train_transformer_model(
     )
 
     # Replicated for multiple devices
-    replicated_params = jax.tree_map(lambda x: jnp.array([x] * num_devices), params)
-    replicated_opt_state = jax.tree_map(
+    replicated_params = tree_map(lambda x: jnp.array([x] * num_devices), params)
+    replicated_opt_state = tree_map(
         lambda x: jnp.array([x] * num_devices), opt_state
     )
 
@@ -118,7 +119,7 @@ def run_train_transformer_model(
         # Validation loss
         if validation_fraction > 0 and ((j % val_every) == 0) and j > 50:
             l_val = loss_fn(
-                jax.tree_map(lambda x: x[0], replicated_params),
+                tree_map(lambda x: x[0], replicated_params),
                 key_val,
                 data_val,
                 node_id,
@@ -132,10 +133,10 @@ def run_train_transformer_model(
 
             if l_val < min_l_val:
                 min_l_val = l_val
-                early_stopping_params = jax.tree_map(lambda x: x[0], replicated_params)
+                early_stopping_params = tree_map(lambda x: x[0], replicated_params)
 
         if early_stopping_counter > stop_early_count:
-            return early_stopping_params, jax.tree_map(
+            return early_stopping_params, tree_map(
                 lambda x: x[0], replicated_opt_state
             )
 
@@ -145,8 +146,8 @@ def run_train_transformer_model(
             if l_val is not None:
                 print("Validation loss: ", l_val, early_stopping_counter)
 
-    params = jax.tree_map(lambda x: x[0], replicated_params)
-    opt_state = jax.tree_map(lambda x: x[0], replicated_opt_state)
+    params = tree_map(lambda x: x[0], replicated_params)
+    opt_state = tree_map(lambda x: x[0], replicated_opt_state)
 
     del replicated_opt_state
     del replicated_params

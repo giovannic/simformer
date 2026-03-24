@@ -3,9 +3,9 @@ import jax.numpy as jnp
 import jax.random as jrandom
 
 from jax import lax
-from jax import core
+from probjax._jax_compat import core
 from jax.tree_util import tree_leaves
-from jax.util import safe_map as map
+from jax._src.util import safe_map as map
 from functools import partial
 from jaxtyping import Array, Float, PyTree, Int
 from typing import Callable, Optional

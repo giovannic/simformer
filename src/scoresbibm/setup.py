@@ -1,4 +1,4 @@
-from setuptools import Command, find_packages, setup
+from setuptools import find_packages, setup
 import os
 
 NAME = "scoresbibm"
@@ -18,25 +18,29 @@ REQUIRED = [
     "numpy",
     "matplotlib",
     "jax",
-    # To install CPU-only torch, see the README or install manually with:
-    # pip install torch==2.1.0+cpu torchvision==0.16.0+cpu torchaudio==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
-    "torch==2.1.0",
+    "torch>=2.6",
     "torchaudio",
     "torchvision",
     "hydra-core",
     "hydra-submitit-launcher",
     "hydra-optuna-sweeper",
     "omegaconf",
-    "sbi==0.22.0",
+    # sbi is installed with --no-deps (see post-install below)
+    # because sbi<=0.25 caps torch<2.6 which has no Python 3.14 wheels
+    "pyro-ppl",
+    "pyknos>=0.16.0",
+    "scikit-learn",
+    "scipy",
+    "tensorboard",
+    "arviz",
+    "joblib>=1.0.0",
+    "pillow",
+    "zuko>=1.2.0",
     "optuna",
     "tueplots",
     "seaborn",
     "pandas",
 ]
-
-os.system(
-    "pip install torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu"
-)
 
 setup(
     name=NAME,
@@ -48,5 +52,9 @@ setup(
     entry_points=entry_points,
 )
 
-# Do not print the output of the following command
+# When using pip (not uv), install sbi and sbibm with --no-deps
+# to avoid torch<2.6 pin conflict on Python 3.14.
+# With uv, run manually: uv pip install sbi sbibm --no-deps
+os.system("pip install sbi --no-deps -q")
 os.system("pip install sbibm --no-deps -q")
+

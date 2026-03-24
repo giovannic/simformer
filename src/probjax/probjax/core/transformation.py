@@ -4,6 +4,7 @@ from typing import Callable, Iterable, Optional
 import jax
 from jaxtyping import Array
 from jax import numpy as jnp
+from probjax._jax_compat import tree_structure, tree_unflatten
 
 from probjax.core.jaxpr_propagation.interpret import interpret
 from probjax.core.jaxpr_propagation.propagate import propagate
@@ -68,7 +69,7 @@ def intervene(fun: Callable, rvs: dict[str, Array], *args, **kwargs):
     """
 
     jaxpr = jax.make_jaxpr(fun)(jax.random.PRNGKey(0), *args, **kwargs)
-    tree_out = jax.tree_structure(fun(jax.random.PRNGKey(0), *args, **kwargs))
+    tree_out = tree_structure(fun(jax.random.PRNGKey(0), *args, **kwargs))
     processing_rule = IntervenedProcessingRule(interventions=rvs)
 
     @wraps(fun)
@@ -82,7 +83,7 @@ def intervene(fun: Callable, rvs: dict[str, Array], *args, **kwargs):
             process_eqn=processing_rule,
         )
 
-        return jax.tree_unflatten(tree_out, out)
+        return tree_unflatten(tree_out, out)
 
     return wrapped
 

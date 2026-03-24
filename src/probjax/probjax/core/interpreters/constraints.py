@@ -1,6 +1,6 @@
 # TODO propagate constraints
 import jax
-from jax.core import JaxprEqn, ClosedJaxpr
+from probjax._jax_compat import JaxprEqn, ClosedJaxpr
 from jax import lax
 
 from probjax.core.jaxpr_propagation.utils import ForwardProcessingRule

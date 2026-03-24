@@ -14,11 +14,15 @@ conda env create --file=src/environment.yml
 conda activate simformer
 pip install -e src/probjax[cuda]
 pip install -e src/scoresbibm
+pip install sbi sbibm --no-deps
 ```
 
+The `sbi` and `sbibm` packages must be installed with `--no-deps` because `sbi` has an
+overly restrictive `torch<2.6` pin that conflicts with Python 3.14 support.
+
 We recommend installing it on a CUDA capable machine, as the experiments heavily benefit
-from GPU acceleration. The above will install the CUDA version of JAX. If you do not have 
-a CUDA capable machine, you can install the CPU version by dropping the `[cuda]` flag. 
+from GPU acceleration. The above will install the CUDA version of JAX. If you do not have
+a CUDA capable machine, you can install the CPU version by dropping the `[cuda]` flag.
 
 
 ## Reproducing the experiments

@@ -1,6 +1,6 @@
 
 import sbi 
-from sbi.utils import posterior_nn, likelihood_nn, classifier_nn
+from sbi.neural_nets import posterior_nn, likelihood_nn, classifier_nn
 from sbi.inference import SNPE, SNLE, SNRE
 from scoresbibm.methods.models import SBIPosteriorModel
 

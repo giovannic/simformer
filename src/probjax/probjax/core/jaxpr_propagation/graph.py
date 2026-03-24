@@ -6,9 +6,7 @@ import networkx as nx
 
 
 import jax.numpy as jnp
-from jax.experimental.pjit import pjit_p
-
-from jax.core import Literal, Jaxpr
+from probjax._jax_compat import Literal, Jaxpr, pjit_p
 import re
 from typing import Callable, Any, Union, Tuple, Optional, Sequence, Dict
 from probjax.core.custom_primitives.random_variable import rv_p

@@ -16,30 +16,27 @@ DESCRIPTION = "Jax library for probabilistic computations"
 URL = "TODO"
 EMAIL = "TODO"
 AUTHOR = "Anonymous"
-REQUIRES_PYTHON = ">=3.7.0"
+REQUIRES_PYTHON = ">=3.10.0"
 
 REQUIRED = [
-    "numpy==1.26.3",
-    "scipy==1.11.4",
+    "numpy>=2.2",
+    "scipy>=1.14",
     "matplotlib",
-    "jax==0.4.23",
-    "jaxlib==0.4.23",
-    "dm-haiku<=0.0.11",
+    "jax>=0.5",
+    "jaxlib>=0.5",
+    "dm-haiku>=0.0.12",
     "optax",
     "ott-jax",
     "networkx",
     "IPython",
+    "chex",
 ]
 
 
 
 EXTRAS = {
     "cuda": [
-            'jax[cuda12]==0.4.23',
-        ],
-    "cuda_fix": [
-            'nvidia-cudnn-cu12==8.9.7.29',
-            'jaxlib@https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.23+cuda12.cudnn89-cp310-cp310-manylinux2014_x86_64.whl',
+            'jax[cuda12]>=0.5',
         ],
     "dev": [
         "autoflake",
@@ -121,9 +118,7 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
-    dependency_links=[
-        "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
-    ],
+    dependency_links=[],
     license="MIT",
     classifiers=[
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -135,9 +130,11 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
     ],
     cmdclass={
         "upload": UploadCommand,

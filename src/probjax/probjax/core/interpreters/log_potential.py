@@ -1,7 +1,7 @@
 import math
 
 import jax
-from jax.core import JaxprEqn, Jaxpr, eval_jaxpr
+from probjax._jax_compat import JaxprEqn, Jaxpr, eval_jaxpr
 from jaxtyping import Array
 
 from probjax.core.jaxpr_propagation.utils import ForwardProcessingRule

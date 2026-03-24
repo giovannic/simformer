@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 
-from sbi.analysis.sbc import c2st as _c2st
+from sbi.diagnostics.sbc import c2st as _c2st
 
 from probjax.distributions.divergences import wasserstein_distance
 

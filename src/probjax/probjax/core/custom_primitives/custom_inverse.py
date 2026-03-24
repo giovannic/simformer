@@ -3,27 +3,26 @@ import jax
 import jax.numpy as jnp
 
 jax.numpy.set_printoptions(precision=3, suppress=True)
-from jax import core
-
-from jax import linear_util as lu
+from probjax._jax_compat import (
+    core,
+    lu,
+    Primitive,
+    CallPrimitive,
+    flatten_fun_nokwargs,
+    shaped_abstractify,
+    batch_jaxpr,
+)
 from functools import partial, update_wrapper
 
 from jax.tree_util import tree_flatten, tree_unflatten, tree_leaves, tree_map
 from jax.interpreters import ad, batching
 from jax._src import ad_util
-
-from jax.core import Primitive, CallPrimitive
 from jax._src.util import weakref_lru_cache, cache
 from jax._src import util
 
 from typing import Any, Callable
 from jax._src.util import safe_map
-from jax._src.api_util import (
-    flatten_fun_nokwargs,
-    argnums_partial,
-    flatten_fun_nokwargs,
-    shaped_abstractify,
-)
+from jax._src.api_util import argnums_partial
 
 from jax.interpreters import mlir
 from jax.interpreters import partial_eval as pe
@@ -57,7 +56,7 @@ def custom_inverse_call_lowering(ctx, *args, forward_jaxpr, inverse_jaxpr, **par
 mlir.register_lowering(custom_inverse_call_p, custom_inverse_call_lowering)
 
 
-@jax.util.cache()
+@util.cache()
 def process_jvp(forward_jaxpr, tangents):
     nonzeros = [type(t) is not ad_util.Zero for t in tangents]
     forward_jvp_jaxpr, forward_out_nz = ad.jvp_jaxpr(
@@ -106,7 +105,7 @@ def batch_custom_inverse_call(
     args = [batching.bdim_at_front(x, d, axis_size) for x, d in zip(args, dims)]
 
     # Batched jaxprs
-    batched_forward_fn, out_size1 = batching.batch_jaxpr(
+    batched_forward_fn, out_size1 = batch_jaxpr(
         forward_jaxpr,
         axis_size,
         in_batched1,
@@ -115,7 +114,7 @@ def batch_custom_inverse_call(
         spmd_axis_name,
         main_type,
     )
-    batched_inverse_fn, _ = batching.batch_jaxpr(
+    batched_inverse_fn, _ = batch_jaxpr(
         inverse_jaxpr,
         axis_size,
         in_batched2,
@@ -143,7 +142,8 @@ def custom_inverse_transpose(*args, **kwargs):
     return ad.call_transpose(custom_inverse_call_p, *args, **kwargs)
 
 
-batching.spmd_axis_primitive_batchers[custom_inverse_call_p] = batch_custom_inverse_call
+if hasattr(batching, "spmd_axis_primitive_batchers"):
+    batching.spmd_axis_primitive_batchers[custom_inverse_call_p] = batch_custom_inverse_call
 batching.axis_primitive_batchers[custom_inverse_call_p] = partial(
     batch_custom_inverse_call, None
 )

@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+from probjax._jax_compat import tree_flatten, tree_map
 import jax.random as jrandom
 from jax._src.util import safe_map as map
 from .marcov_kernels import MCMCKernel, MCMCState, unzip_vals
@@ -32,7 +33,7 @@ class MCMC:
 
     def _check_kernel_tree(self, in_tree) -> None:
         # Should have the same PyTree structure
-        flat_kernel, kernel_tree = jax.tree_flatten(self.kernel)
+        flat_kernel, kernel_tree = tree_flatten(self.kernel)
         assert (
             kernel_tree.num_leaves == 1 or in_tree == kernel_tree
         ), "The kernel must only have a single leave or the same PyTree structure as init_vals!"
@@ -46,7 +47,7 @@ class MCMC:
     @partial(jax.jit, static_argnums=(0,))
     def run(self, state: PyTree[MCMCState] | MCMCState, num_steps: int):
         # Flat the state
-        flat_state, in_tree = jax.tree_flatten(
+        flat_state, in_tree = tree_flatten(
             state, is_leaf=lambda x: isinstance(x, MCMCState)
         )
         # MCMC kernel flatten and check compatibility
@@ -54,13 +55,13 @@ class MCMC:
 
         # Flatten the potential function, give it to all kernels (that might need it)
         flatten_potential_fn = flatten_fun(self.potential_fn, in_tree)
-        flat_kernel = jax.tree_map(
+        flat_kernel = tree_map(
             lambda x: x.set_potential_fn(flatten_potential_fn), flat_kernel
         )
 
         def body_fn(i, carry):
             state = carry
-            new_state = jax.tree_map(lambda kernel, x: kernel(x), flat_kernel, state)
+            new_state = tree_map(lambda kernel, x: kernel(x), flat_kernel, state)
             return new_state
 
         out_state = jax.lax.fori_loop(0, num_steps, body_fn, flat_state)

@@ -1,15 +1,18 @@
-from jax.core import (
+from probjax._jax_compat import (
     Primitive,
     ClosedJaxpr,
     new_sublevel,
     eval_jaxpr,
     ShapedArray,
+    lu,
+    flatten_fun_nokwargs,
+    shaped_abstractify,
+    batch_jaxpr,
 )
 
 import jax
 import jax.random as jrandom
 from jax import tree_util
-from jax import linear_util as lu
 from jax._src import api_util
 from jax._src import ad_util
 from jax._src import util
@@ -18,7 +21,6 @@ from jax._src import effects
 from jax.interpreters import ad
 from jax.interpreters import batching
 from jax.interpreters import mlir
-from jax.interpreters.batching import batch_jaxpr
 from jax.interpreters import partial_eval as pe
 
 from jax._src.util import safe_map as map
@@ -47,7 +49,7 @@ def _sampling_logprobs_jaxprs_with_common_consts(sampling_fn, log_prob_fn):
         ShapedArray((2,), jax.numpy.uint32),
     ]  # The PRNG Key!
     in_tree = tree_util.tree_structure(in_avals)
-    flat_wrapped_sampling_fn, out_tree = api_util.flatten_fun_nokwargs(  # type: ignore
+    flat_wrapped_sampling_fn, out_tree = flatten_fun_nokwargs(  # type: ignore
         wrapped_sampling_fn, in_tree
     )
     debug = pe.debug_info(sampling_fn, in_tree, out_tree, False, "sampling_fn")
@@ -58,7 +60,7 @@ def _sampling_logprobs_jaxprs_with_common_consts(sampling_fn, log_prob_fn):
     wrapped_log_prob_fn = lu.wrap_init(log_prob_fn)
     log_prob_operands = sampling_out_avals
     flat_log_prob_operands, log_prob_in_tree = tree_util.tree_flatten(log_prob_operands)
-    flat_wrapped_log_prob_fn, log_prob_out_tree = api_util.flatten_fun_nokwargs(  # type: ignore
+    flat_wrapped_log_prob_fn, log_prob_out_tree = flatten_fun_nokwargs(  # type: ignore
         wrapped_log_prob_fn, log_prob_in_tree
     )
     debug = pe.debug_info(
@@ -73,7 +75,7 @@ def _sampling_logprobs_jaxprs_with_common_consts(sampling_fn, log_prob_fn):
     # out_trees = [sampling_out_trees, log_prob_out_trees]
 
     newvar = jax._src.core.gensym(jaxprs, suffix="_")  # type: ignore
-    all_const_avals = [map(api_util.shaped_abstractify, consts) for consts in consts]
+    all_const_avals = [map(shaped_abstractify, consts) for consts in consts]
     unused_const_vars = [map(newvar, const_avals) for const_avals in all_const_avals]
 
     def pad_jaxpr_constvars(i, jaxpr):
@@ -229,7 +231,8 @@ rv_p = Primitive("random_variable")
 rv_p.multiple_results = True
 rv_p.def_impl(_rv_impl)
 rv_p.def_abstract_eval(_rv_abstract_eval)
-batching.spmd_axis_primitive_batchers[rv_p] = _rv_batching_rule
+if hasattr(batching, "spmd_axis_primitive_batchers"):
+    batching.spmd_axis_primitive_batchers[rv_p] = _rv_batching_rule
 batching.axis_primitive_batchers[rv_p] = partial(_rv_batching_rule, None)
 mlir.register_lowering(rv_p, _rv_lowering)
 ad.primitive_transposes[rv_p] = _rv_transpose_rule

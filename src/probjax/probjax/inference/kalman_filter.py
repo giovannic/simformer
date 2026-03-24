@@ -2,7 +2,7 @@ from ast import Call
 import jax
 import jax.numpy as jnp
 from jax import lax
-from jax.random import PRNGKeyArray
+from probjax._jax_compat import PRNGKeyArray
 
 from typing import Callable, Tuple, Optional
 from jaxtyping import Array, Float

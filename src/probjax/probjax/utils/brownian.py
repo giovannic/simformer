@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 from jax import lax
-from jax import core
+from probjax._jax_compat import core
 import jax.random as jrandom
 
 from jaxtyping import Array, Float, PyTree

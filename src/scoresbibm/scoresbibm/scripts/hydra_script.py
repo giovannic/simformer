@@ -1,6 +1,7 @@
 
 import hydra
 import logging
+import argparse
 from omegaconf import DictConfig, OmegaConf
 
 import torch
@@ -12,6 +13,7 @@ import os
 import sys
 import socket
 import time
+from pathlib import Path
 from scoresbibm.evaluation.eval_task import eval_coverage, eval_negative_log_likelihood, eval_unstructured_task
 
 from scoresbibm.tasks import get_task
@@ -22,12 +24,29 @@ from scoresbibm.tasks.unstructured_tasks import UnstructuredTask
 from scoresbibm.utils.data_utils import init_dir, generate_unique_model_id, save_model, save_summary, load_model, query
 
 
+_original_check_help = argparse.ArgumentParser._check_help
+
+
+def _patched_check_help(self, action):
+    # Hydra 1.3 passes a lazy help object for shell completion. Python 3.14's
+    # argparse now validates help strings eagerly and rejects non-strings.
+    if action.help is not None and not isinstance(action.help, str):
+        action.help = repr(action.help)
+    return _original_check_help(self, action)
+
+
+argparse.ArgumentParser._check_help = _patched_check_help
 
 
 
 
 
-ascii_logo = """
+
+
+CONFIG_PATH = str(Path(__file__).resolve().parents[2] / "config")
+
+
+ascii_logo = r"""
    _____                     _____ ____ _____ 
   / ____|                   / ____|  _ \_   _|
  | (___   ___ ___  _ __ ___| (___ | |_) || |  
@@ -43,7 +62,7 @@ def main():
     score_sbi()
     
     
-@hydra.main(version_base=None, config_path="../../config", config_name="config.yaml")
+@hydra.main(version_base=None, config_path=CONFIG_PATH, config_name="config.yaml")
 def score_sbi(cfg: DictConfig):
     """Evaluate score based inference"""
     log = logging.getLogger(__name__)

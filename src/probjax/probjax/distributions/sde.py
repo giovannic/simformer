@@ -1,6 +1,6 @@
 import jax
 import jax.numpy as jnp
-from jax.random import PRNGKeyArray
+from probjax._jax_compat import PRNGKeyArray
 
 from functools import partial
 from typing import Callable, Union, Optional
@@ -586,4 +586,3 @@ class subVPSDE(VPSDE):
         phi = phi[..., None]
         var = 1 + phi * (var0 - 2.0) + phi2
         return var
-

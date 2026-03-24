@@ -1,7 +1,5 @@
 import jax
-from jax.core import Jaxpr, JaxprEqn, Literal, Var, Atom
-from jax.experimental.pjit import pjit_p
-from jax.custom_derivatives import custom_jvp_call_p
+from probjax._jax_compat import Jaxpr, JaxprEqn, Literal, Var, Atom, pjit_p, custom_jvp_call_p
 from jax._src.util import safe_map as map
 from typing import Callable, Sequence, Tuple, Sequence, Optional, Any
 from jaxtyping import Array

@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
 
 import jax
-from jax.core import Jaxpr, JaxprEqn, Literal, Var, Atom, ClosedJaxpr
-from jax.tree_util import tree_flatten, tree_unflatten
-from jax._src.api_util import (
-    flatten_fun_nokwargs,
-    argnums_partial_except,
-    flatten_fun,
-    flatten_fun_nokwargs,
+from probjax._jax_compat import (
+    Jaxpr,
+    JaxprEqn,
+    Literal,
+    Var,
+    Atom,
+    ClosedJaxpr,
     shaped_abstractify,
 )
+from jax.tree_util import tree_flatten, tree_unflatten
 
 from jax._src.util import safe_map as map
 from typing import Callable, Sequence, Tuple, Union, Optional, Any
